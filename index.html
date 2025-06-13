@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Proyección de Ruido - Tronadura</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Calculadora de proyección de ruido para tronaduras - Determine distancias seguras para la fauna">
+    <meta name="keywords" content="tronadura, ruido, explosivos, fauna, acústica, minería">
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            backdrop-filter: blur(10px);
+        }
+        
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.2em;
+        }
+        
+        .input-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border-left: 4px solid #3498db;
+        }
+        
+        .input-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #2c3e50;
+            font-weight: 600;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+        
+        button {
+            background: linear-gradient(45deg, #3498db, #2980b9);
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: transform 0.2s, box-shadow 0.2s;
+            width: 100%;
+            margin: 20px 0;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
+        }
+        
+        .results {
+            background: #e8f5e8;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            border-left: 4px solid #27ae60;
+        }
+        
+        .warning {
+            background: #fff3cd;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            border-left: 4px solid #ffc107;
+            color: #856404;
+        }
+        
+        .chart-container {
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        th {
+            background: #3498db;
+            color: white;
+            font-weight: 600;
+        }
+        
+        tr:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .formula {
+            background: #f0f0f0;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📊 Calculadora de Proyección de Ruido - Tronadura</h1>
+        
+        <div class="warning">
+            <strong>⚠️ Nota Importante:</strong> Esta calculadora proporciona estimaciones teóricas. Para proyectos reales, se requiere un estudio acústico profesional que considere topografía, condiciones climáticas y mediciones in situ.
+        </div>
+        
+        <div class="input-section">
+            <h3>Parámetros de la Tronadura</h3>
+            
+            <div class="input-group">
+                <label for="charge">Carga de Explosivo (kg):</label>
+                <input type="number" id="charge" value="1" min="0.1" step="0.1">
+            </div>
+            
+            <div class="input-group">
+                <label for="distance">Distancia de Evaluación (m):</label>
+                <input type="number" id="distance" value="100" min="1" step="1">
+            </div>
+            
+            <div class="input-group">
+                <label for="conditions">Condiciones Atmosféricas:</label>
+                <select id="conditions">
+                    <option value="normal">Normales (15°C, 60% HR)</option>
+                    <option value="favorable">Favorables para propagación</option>
+                    <option value="unfavorable">Desfavorables para propagación</option>
+                </select>
+            </div>
+            
+            <div class="input-group">
+                <label for="terrain">Tipo de Terreno:</label>
+                <select id="terrain">
+                    <option value="open">Campo abierto</option>
+                    <option value="forest">Bosque/Vegetación densa</option>
+                    <option value="urban">Área urbana</option>
+                    <option value="mountain">Terreno montañoso</option>
+                </select>
+            </div>
+        </div>
+        
+        <button onclick="calculateNoise()">Calcular Proyección de Ruido</button>
+        
+        <div id="results" style="display: none;">
+            <div class="results">
+                <h3>Resultados del Análisis</h3>
+                <div id="resultContent"></div>
+            </div>
+            
+            <div class="formula">
+                <strong>Fórmula utilizada:</strong><br>
+                SPL = SPL₀ + 10·log₁₀(W/W₀) - 20·log₁₀(r/r₀) + ΔL_atm + ΔL_terrain<br>
+                Donde:<br>
+                • SPL₀ = Nivel de referencia (140 dB a 1m para 1kg TNT)<br>
+                • W = Carga explosiva (kg)<br>
+                • r = Distancia (m)<br>
+                • ΔL_atm = Corrección atmosférica<br>
+                • ΔL_terrain = Corrección por terreno
+            </div>
+            
+            <table id="distanceTable">
+                <thead>
+                    <tr>
+                        <th>Distancia (m)</th>
+                        <th>Nivel de Ruido (dB)</th>
+                        <th>Estado para Fauna</th>
+                        <th>Observaciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        function calculateNoise() {
+            const charge = parseFloat(document.getElementById('charge').value);
+            const distance = parseFloat(document.getElementById('distance').value);
+            const conditions = document.getElementById('conditions').value;
+            const terrain = document.getElementById('terrain').value;
+            
+            // Nivel de referencia para explosivo (dB a 1m para 1kg)
+            const referenceLevel = 140; // dB
+            const referenceDistance = 1; // m
+            const referenceCharge = 1; // kg
+            
+            // Correcciones atmosféricas
+            let atmCorrection = 0;
+            switch(conditions) {
+                case 'favorable': atmCorrection = 3; break;
+                case 'unfavorable': atmCorrection = -5; break;
+                default: atmCorrection = 0;
+            }
+            
+            // Correcciones por terreno
+            let terrainCorrection = 0;
+            switch(terrain) {
+                case 'forest': terrainCorrection = -8; break;
+                case 'urban': terrainCorrection = 2; break;
+                case 'mountain': terrainCorrection = -3; break;
+                default: terrainCorrection = 0;
+            }
+            
+            function calculateSPL(dist) {
+                // Fórmula: SPL = SPL₀ + 10·log₁₀(W/W₀) - 20·log₁₀(r/r₀) + correcciones
+                const chargeFactor = 10 * Math.log10(charge / referenceCharge);
+                const distanceFactor = -20 * Math.log10(dist / referenceDistance);
+                const spl = referenceLevel + chargeFactor + distanceFactor + atmCorrection + terrainCorrection;
+                return Math.round(spl * 10) / 10;
+            }
+            
+            const currentSPL = calculateSPL(distance);
+            
+            // Encontrar distancia para 80 dB
+            let safeDistance = 1;
+            while(calculateSPL(safeDistance) > 80 && safeDistance < 10000) {
+                safeDistance += 1;
+            }
+            
+            // Mostrar resultados
+            const resultContent = document.getElementById('resultContent');
+            resultContent.innerHTML = `
+                <p><strong>Nivel de ruido a ${distance}m:</strong> ${currentSPL} dB</p>
+                <p><strong>Distancia mínima para ≤80 dB:</strong> ${safeDistance}m</p>
+                <p><strong>Carga explosiva:</strong> ${charge} kg</p>
+                <p><strong>Condiciones:</strong> ${getConditionText(conditions)}</p>
+                <p><strong>Terreno:</strong> ${getTerrainText(terrain)}</p>
+                
+                ${currentSPL > 80 ? 
+                    `<div class="warning">⚠️ El nivel actual (${currentSPL} dB) supera el límite de 80 dB. Se requiere mayor distancia.</div>` :
+                    `<div style="background: #d4edda; padding: 10px; border-radius: 5px; color: #155724;">✅ El nivel actual está dentro del límite aceptable para fauna.</div>`
+                }
+            `;
+            
+            // Generar tabla de distancias
+            const tableBody = document.getElementById('tableBody');
+            tableBody.innerHTML = '';
+            
+            const distances = [50, 100, 200, 300, 500, 750, 1000, 1500, 2000];
+            distances.forEach(dist => {
+                const spl = calculateSPL(dist);
+                const status = spl <= 80 ? 'Seguro' : 'Excede límite';
+                const statusClass = spl <= 80 ? 'style="color: green; font-weight: bold;"' : 'style="color: red; font-weight: bold;"';
+                const observation = getObservation(spl);
+                
+                const row = tableBody.insertRow();
+                row.innerHTML = `
+                    <td>${dist}</td>
+                    <td>${spl}</td>
+                    <td ${statusClass}>${status}</td>
+                    <td>${observation}</td>
+                `;
+            });
+            
+            document.getElementById('results').style.display = 'block';
+        }
+        
+        function getConditionText(condition) {
+            switch(condition) {
+                case 'favorable': return 'Favorables (+3 dB)';
+                case 'unfavorable': return 'Desfavorables (-5 dB)';
+                default: return 'Normales (sin corrección)';
+            }
+        }
+        
+        function getTerrainText(terrain) {
+            switch(terrain) {
+                case 'forest': return 'Bosque/Vegetación (-8 dB)';
+                case 'urban': return 'Área urbana (+2 dB)';
+                case 'mountain': return 'Montañoso (-3 dB)';
+                default: return 'Campo abierto (sin corrección)';
+            }
+        }
+        
+        function getObservation(dB) {
+            if (dB <= 70) return 'Impacto mínimo en fauna';
+            else if (dB <= 80) return 'Aceptable para fauna silvestre';
+            else if (dB <= 90) return 'Puede causar estrés temporal';
+            else if (dB <= 100) return 'Probable alteración conductual';
+            else return 'Alto riesgo de daño auditivo';
+        }
+        
+        // Cálculo inicial
+        calculateNoise();
+    </script>
+</body>
+</html>
